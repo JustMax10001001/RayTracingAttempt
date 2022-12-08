@@ -1,0 +1,51 @@
+﻿using System.Diagnostics;
+
+namespace RayTracing;
+
+public class SphereObject : IGameObject
+{
+    private readonly float _sphereRadius;
+    public ColorF EmissionColor { get; set; }
+    public float Emission { get; set; }
+
+    public Matrix3 Transform { get; set; } = new();
+
+    public SphereObject(float radius = 4, ColorF? color = null, float emission = 0f)
+    {
+        _sphereRadius = radius;
+        EmissionColor = color ?? new ColorF(0.6f, 0.2f, 0.2f);
+        Emission = emission;
+    }
+
+    public bool TryBounceRay(Ray ray, out Ray bouncedRay)
+    {
+        var deltaX = Transform.Tx - ray.Origin.X;
+        var deltaY = Transform.Ty - ray.Origin.Y;
+        var deltaZ = Transform.Tz - ray.Origin.Z;
+        var b = -2 * (ray.Kx * deltaX + ray.Ky * deltaY + ray.Kz * deltaZ);
+
+        var a = ray.Kx * ray.Kx + ray.Ky * ray.Ky + ray.Kz * ray.Kz;
+        var c = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ - _sphereRadius * _sphereRadius;
+        var discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0)
+        {
+            bouncedRay = default;
+            return false;
+        }
+
+        var sqrtD = MathF.Sqrt(discriminant);
+
+        var t1 = (sqrtD - b) / 2 * a;
+        var t2 = (-sqrtD - b) / 2 * a;
+
+        if (t1 < 0 && t2 < 0)
+        {
+            bouncedRay = default;
+            return false;
+        }
+
+        bouncedRay = Ray.CreateBounced(ray, Math.Min(t1, t2), Emission, EmissionColor);
+        return true;
+    }
+}
