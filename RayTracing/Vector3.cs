@@ -40,6 +40,12 @@ public struct Vector3
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 operator -(Vector3 x, Vector3 y)
+    {
+        return x.Subtract(y);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 Multiply(Matrix3 b)
     {
         return new Vector3
@@ -71,10 +77,42 @@ public struct Vector3
             Z = Z + other.Z
         };
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 Subtract(Vector3 other)
+    {
+        return new Vector3
+        {
+            X = X - other.X,
+            Y = Y - other.Y,
+            Z = Z - other.Z
+        };
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float DistanceToSquared(Vector3 other)
     {
         return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (Z - other.Z) * (Z - other.Z);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float Magnitude()
+    {
+        return MathF.Sqrt(X * X + Y * Y + Z * Z);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float MagnitudeSquared()
+    {
+        return X * X + Y * Y + Z * Z;
+    }
+
+    public void Normalize()
+    {
+        var magnitude = this.Magnitude();
+
+        X /= magnitude;
+        Y /= magnitude;
+        Z /= magnitude;
     }
 }

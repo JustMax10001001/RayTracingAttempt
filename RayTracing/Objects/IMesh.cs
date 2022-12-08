@@ -1,8 +1,7 @@
-﻿namespace RayTracing;
+﻿namespace RayTracing.Objects;
 
-public interface IGameObject
+public interface IMesh: IGameObject
 {
-    Matrix3 Transform { get; }
     ColorF EmissionColor { get; }
     float Emission { get; }
 

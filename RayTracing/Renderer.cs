@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using RayTracing.Objects;
 
 namespace RayTracing;
 
@@ -12,30 +13,29 @@ public sealed class Renderer
     private readonly float _verticalFovRad;
 
     private readonly MainForm _mainForm;
-    private FastBitmap _nextFrame;
-    private readonly int _width;
-    private readonly int _height;
-    private readonly List<IGameObject> _objects = new();
-
-    public float Pitch, Yaw;
+    private FastBitmap _nextFrame = new(1, 1);
+    private readonly List<IMesh> _objects = new();
 
     public Image NextFrame;
+    public Camera Camera { get; }
 
     public Renderer(MainForm mainForm, float horizontalFovDegrees = 60)
     {
         _mainForm = mainForm;
 
-        _width = _mainForm.Width;
-        _height = _mainForm.Height;
-
         _verticalFovRad = horizontalFovDegrees / 180f * MathF.PI;
-
-        _nextFrame = new FastBitmap(_width, _height);
         NextFrame = _nextFrame.GetImage();
+
+        Camera = new Camera
+        {
+            Pitch = 0.0f,
+            Yaw = -0.0f,
+            PosZ = -12,
+        };
 
         _objects.Add(new SphereObject(emission: 200)
         {
-            Transform =
+            Transform = new Matrix3
             {
                 Tz = 16
             }
@@ -43,7 +43,7 @@ public sealed class Renderer
 
         _objects.Add(new SphereObject(radius: 2, emission: 400, color: new ColorF(0.2f, 0.8f, 0.2f))
         {
-            Transform =
+            Transform = new Matrix3
             {
                 Tz = 11.5f,
                 Ty = -5
@@ -53,7 +53,6 @@ public sealed class Renderer
 
     public void BeginRendering()
     {
-        int frame = 0;
         var random = new Random();
 
         while (!_mainForm.IsDisposed)
@@ -64,9 +63,11 @@ public sealed class Renderer
             float fovStep = _verticalFovRad / height;
             float fovHalfStep = fovStep / 2;
 
-            _nextFrame.Dispose();
+            _nextFrame?.Dispose();
             _nextFrame = new FastBitmap(width, height);
-            
+
+            var cameraTransform = Camera.Transform;
+
             var now = DateTime.Now;
             float angleVertical = _verticalFovRad / 2;
 
@@ -81,17 +82,27 @@ public sealed class Renderer
                     {
                         var randomAngle = fovStep * (float)random.NextDouble() - fovHalfStep;
 
-                        var rayAngleHorizontal = Yaw + angleHorizontal + fovHalfStep + randomAngle;
-                        var rayAngleVertical = Pitch + angleVertical + fovHalfStep + randomAngle;
+                        var rayAngleHorizontal = angleHorizontal + fovHalfStep + randomAngle;
+                        var rayAngleVertical = angleVertical + fovHalfStep + randomAngle;
 
-                        var ray = new Ray
+                        var screenDirection = new Vector3
                         {
-                            Kx = MathF.Sin(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
-                            Ky = MathF.Sin(rayAngleVertical),
-                            Kz = MathF.Cos(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
+                            X = MathF.Sin(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
+                            Y = MathF.Sin(rayAngleVertical),
+                            Z = MathF.Cos(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
                         };
 
-                        ray.Origin = new Vector3(0, -8, -8);
+                        var worldRayEnd = screenDirection * cameraTransform;
+                        var worldRayOrigin = new Vector3() * cameraTransform;
+
+                        var worldRayDirection = worldRayEnd - worldRayOrigin;
+                        worldRayDirection.Normalize();
+                        
+                        var ray = new Ray
+                        {
+                            Direction = worldRayDirection,
+                            Origin = worldRayOrigin,
+                        };
 
                         for (var i = 0; i < _objects.Count; i++)
                         {
@@ -119,10 +130,9 @@ public sealed class Renderer
 
             Debug.WriteLine($"Rendered in {DateTime.Now.Subtract(now).TotalMilliseconds} ms");
 
-            NextFrame = (Image)_nextFrame.GetImage();
+            NextFrame = _nextFrame.GetImage();
 
             _mainForm.InvokeRender();
-            ++frame;
         }
     }
 }

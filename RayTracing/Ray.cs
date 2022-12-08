@@ -5,9 +5,7 @@ public struct Ray
     public ColorF Color { get; set; } = default;
     
     public Vector3 Origin { get; set; }
-    public float Kx { get; set; }
-    public float Ky { get; set; }
-    public float Kz { get; set; }
+    public Vector3 Direction { get; set; }
 
     public Ray()
     {
@@ -17,7 +15,7 @@ public struct Ray
     {
         var newRay = new Ray
         {
-            Origin = ray.Origin + t * new Vector3(ray.Kx, ray.Ky, ray.Kz)
+            Origin = ray.Origin + t * new Vector3(ray.Direction.X, ray.Direction.Y, ray.Direction.Z)
         };
 
         newRay.Color = ColorF.GetDistantColor(emissionColor, emission, ray.Origin, newRay.Origin);

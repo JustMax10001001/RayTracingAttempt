@@ -1,3 +1,5 @@
+using RayTracing.Objects;
+
 namespace RayTracing;
 
 static class Program
@@ -8,8 +10,12 @@ static class Program
     [STAThread]
     static void Main()
     {
-        //TestRayBounce();
+        var ray = new Vector3(0, 0.7f, 0.7f);
+        var aBitUpTransform = Matrix3.CreateRotation(0.2f, 0, 0f);
+        var newRay = ray * aBitUpTransform;
         
+        //TestRayBounce();
+
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -20,7 +26,7 @@ static class Program
     {
         var sphere = new SphereObject
         {
-            Transform =
+            Transform = new Matrix3
             {
                 Tz = 8
             }
@@ -28,9 +34,12 @@ static class Program
 
         var ray = new Ray
         {
-            Kx = 0,
-            Ky = 0,
-            Kz = 1,
+            Direction = new Vector3
+            {
+                X = 0,
+                Y = 0,
+                Z = 1,
+            },
             Origin = new Vector3
             {
                 Y = 0,

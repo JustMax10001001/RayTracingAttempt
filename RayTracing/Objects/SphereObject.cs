@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace RayTracing.Objects;
 
-namespace RayTracing;
-
-public class SphereObject : IGameObject
+public class SphereObject : IMesh
 {
     private readonly float _sphereRadius;
     public ColorF EmissionColor { get; set; }
@@ -22,9 +20,14 @@ public class SphereObject : IGameObject
         var deltaX = Transform.Tx - ray.Origin.X;
         var deltaY = Transform.Ty - ray.Origin.Y;
         var deltaZ = Transform.Tz - ray.Origin.Z;
-        var b = -2 * (ray.Kx * deltaX + ray.Ky * deltaY + ray.Kz * deltaZ);
+        
+        var rayDirX = ray.Direction.X;
+        var rayDirY = ray.Direction.Y;
+        var rayDirZ = ray.Direction.Z;
+        
+        var b = -2 * (rayDirX * deltaX + rayDirY * deltaY + rayDirZ * deltaZ);
 
-        var a = ray.Kx * ray.Kx + ray.Ky * ray.Ky + ray.Kz * ray.Kz;
+        var a = rayDirX * rayDirX + rayDirY * rayDirY + rayDirZ * rayDirZ;
         var c = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ - _sphereRadius * _sphereRadius;
         var discriminant = b * b - 4 * a * c;
 

@@ -1,6 +1,6 @@
 ﻿namespace RayTracing;
 
-public class Matrix3
+public struct Matrix3
 {
     public float Tx;
     public float Ty;
@@ -74,6 +74,31 @@ public class Matrix3
             M11 = sx,
             M22 = sy,
             M33 = sz
+        };
+    }
+
+    public static Matrix3 CreateRotation(float rotX, float rotY, float rotZ)
+    {
+        var sinRotX = MathF.Sin(rotX);
+        var cosRotX = MathF.Cos(rotX);
+        var sinRotY = MathF.Sin(rotY);
+        var cosRotY = MathF.Cos(rotY);
+        var sinRotZ = MathF.Sin(rotZ);
+        var cosRotZ = MathF.Cos(rotZ);
+
+        return new Matrix3
+        {
+            M11 = cosRotX * cosRotY,
+            M12 = cosRotX * sinRotY * sinRotZ - sinRotX * cosRotZ,
+            M13 = cosRotX * sinRotY * cosRotZ + sinRotX * sinRotZ,
+
+            M21 = sinRotX * cosRotY,
+            M22 = sinRotX * sinRotY * sinRotZ + cosRotX * cosRotZ,
+            M23 = sinRotX * sinRotY * cosRotZ - cosRotX * sinRotZ,
+
+            M31 = -sinRotY,
+            M32 = cosRotY * sinRotZ,
+            M33 = cosRotY * cosRotZ
         };
     }
 }
