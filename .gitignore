@@ -1,0 +1,8 @@
+﻿# VS
+/**/.vs
+Debug/
+Release/
+bin/
+obj/
+app.db
+app.db-*
