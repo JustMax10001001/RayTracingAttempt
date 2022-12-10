@@ -31,6 +31,7 @@ public sealed class Renderer
             Pitch = 0.0f,
             Yaw = -0.0f,
             PosZ = -12,
+            PosY = -4
         };
 
         _objects.Add(new SphereObject(emission: 200)
@@ -46,7 +47,16 @@ public sealed class Renderer
             Transform = new Matrix3
             {
                 Tz = 11.5f,
-                Ty = -5
+                Ty = -5.5f
+            }
+        });
+        _objects.Add(new SphereObject(radius: 2, emission: 400, color: new ColorF(0.2f, 0.8f, 0.2f))
+        {
+            Transform = new Matrix3
+            {
+                Tz = 11.5f,
+                Ty = -5.5f,
+                Tx = -7,
             }
         });
     }
@@ -57,82 +67,117 @@ public sealed class Renderer
 
         while (!_mainForm.IsDisposed)
         {
-            int width = _mainForm.Width;
-            int height = _mainForm.Height;
-            _horizontalFovRad = _verticalFovRad / height * width;
-            float fovStep = _verticalFovRad / height;
-            float fovHalfStep = fovStep / 2;
-
-            _nextFrame?.Dispose();
-            _nextFrame = new FastBitmap(width, height);
-
-            var cameraTransform = Camera.Transform;
-
             var now = DateTime.Now;
-            float angleVertical = _verticalFovRad / 2;
 
-            for (int y = 0; y < height; y++)
+            RenderNextFrame(random);
+            
+            Debug.WriteLine($"Rendered in {DateTime.Now.Subtract(now).TotalMilliseconds} ms");
+        }
+    }
+
+    private void RenderNextFrame(Random random)
+    {
+        int width = _mainForm.Width;
+        int height = _mainForm.Height;
+        _horizontalFovRad = _verticalFovRad / height * width;
+        float fovStep = _verticalFovRad / height;
+        float fovHalfStep = fovStep / 2;
+
+        _nextFrame?.Dispose();
+        _nextFrame = new FastBitmap(width, height);
+
+        var cameraTransform = Camera.Transform;
+
+        float angleVertical = _verticalFovRad / 2;
+
+        for (int y = 0; y < height; y++)
+        {
+            float angleHorizontal = -_horizontalFovRad / 2;
+            for (int x = 0; x < width; x++)
             {
-                float angleHorizontal = -_horizontalFovRad / 2;
-                for (int x = 0; x < width; x++)
+                float r = 0, g = 0, b = 0;
+
+                for (int rayIndex = 0; rayIndex < RaysPerCast; rayIndex++)
                 {
-                    float r = 0, g = 0, b = 0;
+                    var randomAngleVertical = fovStep * random.NextSingle() - fovHalfStep;
+                    var randomAngleHorizontal = fovStep * random.NextSingle() - fovHalfStep;
 
-                    for (int j = 0; j < RaysPerCast; j++)
+                    var rayAngleHorizontal = angleHorizontal + fovHalfStep + randomAngleHorizontal;
+                    var rayAngleVertical = angleVertical + fovHalfStep + randomAngleVertical;
+
+                    var screenDirection = new Vector3
                     {
-                        var randomAngle = fovStep * (float)random.NextDouble() - fovHalfStep;
+                        X = MathF.Sin(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
+                        Y = MathF.Sin(rayAngleVertical),
+                        Z = MathF.Cos(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
+                    };
 
-                        var rayAngleHorizontal = angleHorizontal + fovHalfStep + randomAngle;
-                        var rayAngleVertical = angleVertical + fovHalfStep + randomAngle;
+                    var worldRayEnd = screenDirection * cameraTransform;
+                    var worldRayOrigin = new Vector3() * cameraTransform;
 
-                        var screenDirection = new Vector3
+                    var worldRayDirection = worldRayEnd - worldRayOrigin;
+                    worldRayDirection.Normalize();
+
+                    var ray = new Ray
+                    {
+                        Direction = worldRayDirection,
+                        Origin = worldRayOrigin,
+                    };
+
+                    bool anyRayHit = false;
+
+                    for (var objectIndex = 0; objectIndex < _objects.Count; objectIndex++)
+                    {
+                        if (!_objects[objectIndex].TryBounceRay(ray, out var newRay))
                         {
-                            X = MathF.Sin(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
-                            Y = MathF.Sin(rayAngleVertical),
-                            Z = MathF.Cos(rayAngleHorizontal) * MathF.Cos(rayAngleVertical),
-                        };
-
-                        var worldRayEnd = screenDirection * cameraTransform;
-                        var worldRayOrigin = new Vector3() * cameraTransform;
-
-                        var worldRayDirection = worldRayEnd - worldRayOrigin;
-                        worldRayDirection.Normalize();
-                        
-                        var ray = new Ray
-                        {
-                            Direction = worldRayDirection,
-                            Origin = worldRayOrigin,
-                        };
-
-                        for (var i = 0; i < _objects.Count; i++)
-                        {
-                            if (!_objects[i].TryBounceRay(ray, out var newRay))
-                            {
-                                continue;
-                            }
-
-                            r += newRay.Color.Red;
-                            g += newRay.Color.Green;
-                            b += newRay.Color.Blue;
-
-                            break;
+                            continue;
                         }
+
+                        r += newRay.Color.Red;
+                        g += newRay.Color.Green;
+                        b += newRay.Color.Blue;
+
+                        anyRayHit = true;
+
+                        break;
                     }
 
-                    _nextFrame.SetColor(x, y, (int)(255 * r / RaysPerCast), (int)(255 * g / RaysPerCast),
-                        (int)(255 * b / RaysPerCast));
+                    if (anyRayHit)
+                    {
+                        continue;
+                    }
 
-                    angleHorizontal += fovStep;
+                    if (MathF.Abs(ray.Direction.Y) < 0.003f)
+                    {
+                        b += 1;
+                    }
+                    else if (MathF.Abs(ray.Direction.X) < 0.003f)
+                    {
+                        g += 1;
+                    }
+                    else if (MathF.Abs(ray.Direction.Z) < 0.003f)
+                    {
+                        r += 1;
+                    }
+                    else
+                    {
+                        g += 0.7f;
+                        b += 0.85f;
+                    }
                 }
 
-                angleVertical -= fovStep;
+                _nextFrame.SetColor(x, y, (int)(255 * r / RaysPerCast), (int)(255 * g / RaysPerCast),
+                    (int)(255 * b / RaysPerCast));
+
+                angleHorizontal += fovStep;
             }
 
-            Debug.WriteLine($"Rendered in {DateTime.Now.Subtract(now).TotalMilliseconds} ms");
-
-            NextFrame = _nextFrame.GetImage();
-
-            _mainForm.InvokeRender();
+            angleVertical -= fovStep;
         }
+
+
+        NextFrame = _nextFrame.GetImage();
+
+        _mainForm.InvokeRender();
     }
 }

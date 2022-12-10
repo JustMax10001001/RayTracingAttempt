@@ -36,19 +36,19 @@ public sealed partial class MainForm : Form
 
         if (GetKeyState(Keys.Q) is KeyStates.Down)
         {
-            _renderer.Camera.Yaw -= 0.01f;
+            _renderer.Camera.Yaw += 0.025f;
         }
         else if (GetKeyState(Keys.E) is KeyStates.Down)
         {
-            _renderer.Camera.Yaw += 0.01f;
+            _renderer.Camera.Yaw -= 0.025f;
         }
         else if (GetKeyState(Keys.W) is KeyStates.Down)
         {
-            _renderer.Camera.Pitch += 0.005f;
+            _renderer.Camera.Pitch += 0.01f;
         }
         else if (GetKeyState(Keys.S) is KeyStates.Down)
         {
-            _renderer.Camera.Pitch -= 0.005f;
+            _renderer.Camera.Pitch -= 0.01f;
         }
     }
 
