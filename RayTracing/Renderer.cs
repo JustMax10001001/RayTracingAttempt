@@ -18,7 +18,7 @@ public sealed class Renderer
 
     public Image NextFrame;
     public Camera Camera { get; }
-
+    
     public Renderer(MainForm mainForm, float horizontalFovDegrees = 60)
     {
         _mainForm = mainForm;
@@ -69,22 +69,23 @@ public sealed class Renderer
         {
             var now = DateTime.Now;
 
-            RenderNextFrame(random);
+            RenderNextFrame(random, _mainForm.Width, _mainForm.Height);
             
             Debug.WriteLine($"Rendered in {DateTime.Now.Subtract(now).TotalMilliseconds} ms");
         }
     }
 
-    private void RenderNextFrame(Random random)
+    private void RenderNextFrame(Random random, int width, int height)
     {
-        int width = _mainForm.Width;
-        int height = _mainForm.Height;
         _horizontalFovRad = _verticalFovRad / height * width;
         float fovStep = _verticalFovRad / height;
         float fovHalfStep = fovStep / 2;
 
-        _nextFrame?.Dispose();
-        _nextFrame = new FastBitmap(width, height);
+        if (_nextFrame is null || _nextFrame.Width != width || _nextFrame.Height != height)
+        {
+            _nextFrame?.Dispose();
+            _nextFrame = new FastBitmap(width, height);
+        }
 
         var cameraTransform = Camera.Transform;
 
@@ -151,7 +152,7 @@ public sealed class Renderer
                     {
                         b += 1;
                     }
-                    else if (MathF.Abs(ray.Direction.X) < 0.003f)
+                    else if (MathF.Abs(ray.Direction.X % (MathF.PI / 18)) < 0.003f)
                     {
                         g += 1;
                     }
