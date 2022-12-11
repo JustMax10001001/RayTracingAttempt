@@ -59,15 +59,21 @@ public sealed partial class MainForm : Form
             return;
         }
 
-        Invoke(() =>
+        try
         {
-            if (Disposing || IsDisposed)
+            Invoke(() =>
             {
-                return;
-            }
+                if (Disposing || IsDisposed)
+                {
+                    return;
+                }
 
-            Invalidate();
-        });
+                Invalidate();
+            });
+        }
+        catch (ObjectDisposedException)
+        {
+        }
     }
 
     protected override void OnPaintBackground(PaintEventArgs e)

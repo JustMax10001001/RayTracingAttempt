@@ -1,12 +1,18 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace RayTracing;
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[DebuggerDisplay("({X}, {Y}, {Z})")]
 public struct Vector3
 {
     public float X;
     public float Y;
     public float Z;
+
+    public static readonly Vector3 Zero = new();
 
     public Vector3(float x, float y, float z)
     {
@@ -31,6 +37,12 @@ public struct Vector3
     public static Vector3 operator *(Vector3 v, float k)
     {
         return v.Multiply(k);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 operator /(Vector3 v, float k)
+    {
+        return v.Divide(k);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +76,17 @@ public struct Vector3
             X = k * X,
             Y = k * Y,
             Z = k * Z,
+        };
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Vector3 Divide(float k)
+    {
+        return new Vector3
+        {
+            X = X / k,
+            Y = Y / k,
+            Z = Z / k,
         };
     }
 
@@ -105,6 +128,11 @@ public struct Vector3
     public float MagnitudeSquared()
     {
         return X * X + Y * Y + Z * Z;
+    }
+
+    public Vector3 Asin()
+    {
+        return new Vector3(MathF.Asin(X), MathF.Asin(Y), MathF.Asin(Z));
     }
 
     public void Normalize()

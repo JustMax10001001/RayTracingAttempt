@@ -3,15 +3,15 @@
 public class SphereObject : IMesh
 {
     private readonly float _sphereRadius;
-    public ColorF EmissionColor { get; set; }
+    public Vector3 EmissionColor { get; set; }
     public float Emission { get; set; }
 
     public Matrix3 Transform { get; set; } = new();
 
-    public SphereObject(float radius = 4, ColorF? color = null, float emission = 0f)
+    public SphereObject(float radius = 4, Vector3? color = null, float emission = 0f)
     {
         _sphereRadius = radius;
-        EmissionColor = color ?? new ColorF(0.6f, 0.2f, 0.2f);
+        EmissionColor = color ?? new Vector3(0.6f, 0.2f, 0.2f);
         Emission = emission;
     }
 

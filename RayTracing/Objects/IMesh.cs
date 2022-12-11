@@ -2,7 +2,7 @@
 
 public interface IMesh: IGameObject
 {
-    ColorF EmissionColor { get; }
+    Vector3 EmissionColor { get; }
     float Emission { get; }
 
     bool TryBounceRay(Ray ray, out Ray bouncedRay);

@@ -13,7 +13,6 @@ public sealed class FastBitmap : IDisposable
     public int Width => _width;
     public int Height => _height;
 
-
     private readonly int[] _bits;
     private readonly Bitmap _bitmapImpl;
 
@@ -43,6 +42,23 @@ public sealed class FastBitmap : IDisposable
         _bits[addr] = (int)(0xFF000000 | r << 16 | g << 8 | b);
 #pragma warning restore CS0675
     }
+
+    public void SetColor(int x, int y, Vector3 color)
+    {
+#pragma warning disable CS0675
+        _bits[x + _width * y] = (int)(0xFF000000 | (int)(255 * color.X) << 16 | (int)(255 * color.Y) << 8 | (int)(255 * color.Z));
+#pragma warning restore CS0675
+    }
+
+    public int GetColor(int addr)
+    {
+        return _bits[addr];
+    } 
+    
+    public int GetColor(int x, int y)
+    {
+        return _bits[x + _width * y];
+    } 
 
     public Image GetImage()
     {
