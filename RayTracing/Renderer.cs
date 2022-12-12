@@ -31,14 +31,14 @@ public sealed class Renderer
         {
             Pitch = 0.0f,
             Yaw = -0.0f,
-            PosZ = -12
+            PosX = -12
         };
 
         _objects.Add(new SphereObject(emission: 200)
         {
             Transform = new Matrix3
             {
-                Tz = 16
+                Tx = 16
             }
         });
 
@@ -46,21 +46,21 @@ public sealed class Renderer
         {
             Transform = new Matrix3
             {
-                Tz = 11.5f,
-                Ty = -5.5f
+                Tx = 11.5f,
+                Tz = -5.5f
             }
         });
-
         _objects.Add(new SphereObject(radius: 2, emission: 400, color: new Vector3(0.2f, 0.8f, 0.2f))
         {
             Transform = new Matrix3
             {
-                Tz = 11.5f,
-                Ty = -5.5f,
-                Tx = -7,
+                Tx = 11.5f,
+                Tz = -5.5f,
+                Ty = -7,
             }
         });
-        
+
+
         _objects.Add(new Skybox());
     }
 
@@ -95,15 +95,15 @@ public sealed class Renderer
         var screenToWorldTransform = CreateScreenToWorldTransform(_horizontalFovRad, width, height);
 
         var pixelWidthOnScreen = 1f / width;
-        var screenY = 0f;
+        var screenZ = 0f;
 
-        for (int pixelY = 0; pixelY < height; pixelY++, screenY += pixelWidthOnScreen)
+        for (int pixelY = 0; pixelY < height; pixelY++, screenZ += pixelWidthOnScreen)
         {
-            var screenX = 0f;
+            var screenY = 0f;
 
-            for (int pixelX = 0; pixelX < width; pixelX++, screenX += pixelWidthOnScreen)
+            for (int pixelX = 0; pixelX < width; pixelX++, screenY += pixelWidthOnScreen)
             {
-                var color = RenderPixel(new Vector3(screenX, screenY, 0), pixelWidthOnScreen, screenToWorldTransform,
+                var color = RenderPixel(new Vector3(0, screenY, screenZ), pixelWidthOnScreen, screenToWorldTransform,
                     cameraTransform);
 
                 if (hasPreviousFrame)
@@ -131,8 +131,8 @@ public sealed class Renderer
 
             var screenPosition = new Vector3
             {
-                X = pixelTopLeftScreenPosition.X + randomHorizontalDelta,
-                Y = pixelTopLeftScreenPosition.Y + randomVerticalDelta
+                Y = pixelTopLeftScreenPosition.Y + randomHorizontalDelta,
+                Z = pixelTopLeftScreenPosition.Z + randomVerticalDelta,
             };
 
             var worldRayEnd = screenPosition * screenToWorldTransform * cameraTransform;
@@ -167,15 +167,15 @@ public sealed class Renderer
     {
         var halfFov = horizontalFovRad / 2;
 
-        var screenZ = 0.5f * MathF.Atan(halfFov);
+        var screenX = 0.5f * MathF.Atan(halfFov);
         var screenHeightHalf = 0.5f * height / width;
 
         return new Matrix3
         {
-            M22 = -1,
-            Tx = -0.5f,
-            Ty = screenHeightHalf,
-            Tz = screenZ
+            M33 = -1,
+            Tx = screenX,
+            Ty = -0.5f,
+            Tz = screenHeightHalf
         };
     }
 }

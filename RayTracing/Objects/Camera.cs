@@ -80,7 +80,7 @@ public class Camera : IGameObject
 
     private void UpdateTransform()
     {
-        var newTransform = Matrix3.CreateRotation(0, _yaw, _pitch);
+        var newTransform = Matrix3.CreateRotation(_yaw, _pitch, 0);
 
         newTransform.Tx = _transform.Tx;
         newTransform.Ty = _transform.Ty;

@@ -22,41 +22,53 @@ public struct Vector3
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Vector3 a, Vector3 b)
+    {
+        return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Vector3 a, Vector3 b)
+    {
+        return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator *(Vector3 x, Matrix3 m)
     {
         return x.Multiply(m);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator *(float k, Vector3 v)
     {
         return v.Multiply(k);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator *(Vector3 v, float k)
     {
         return v.Multiply(k);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator /(Vector3 v, float k)
     {
         return v.Divide(k);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator +(Vector3 x, Vector3 y)
     {
         return x.Add(y);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator -(Vector3 x, Vector3 y)
     {
         return x.Subtract(y);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 Multiply(Matrix3 b)
     {
@@ -67,7 +79,7 @@ public struct Vector3
             Z = b.Tz + X * b.M13 + Y * b.M23 + Z * b.M33,
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 Multiply(float k)
     {
@@ -78,7 +90,7 @@ public struct Vector3
             Z = k * Z,
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3 Divide(float k)
     {
@@ -111,7 +123,7 @@ public struct Vector3
             Z = Z - other.Z
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float DistanceToSquared(Vector3 other)
     {
