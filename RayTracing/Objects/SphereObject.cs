@@ -8,7 +8,7 @@ public class SphereObject : IMesh
 
     public Matrix3 Transform { get; set; } = new();
 
-    public SphereObject(float radius = 4, Vector3? color = null, float emission = 0f)
+    public SphereObject(float radius = 2, Vector3? color = null, float emission = 0f)
     {
         _sphereRadius = radius;
         EmissionColor = color ?? new Vector3(0.6f, 0.2f, 0.2f);

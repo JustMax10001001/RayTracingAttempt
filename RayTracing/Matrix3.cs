@@ -101,4 +101,9 @@ public struct Matrix3
             M33 = cosRotY * cosRotZ
         };
     }
+
+    public Vector3 GetTranslateVector()
+    {
+        return new Vector3(Tx, Ty, Tz);
+    }
 }

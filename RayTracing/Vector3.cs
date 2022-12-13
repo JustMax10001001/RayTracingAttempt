@@ -142,6 +142,12 @@ public struct Vector3
         return X * X + Y * Y + Z * Z;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float DotProduct(Vector3 other)
+    {
+        return X * other.X + Y * other.Y + Z * other.Z;
+    }
+
     public Vector3 Asin()
     {
         return new Vector3(MathF.Asin(X), MathF.Asin(Y), MathF.Asin(Z));

@@ -31,18 +31,71 @@ public sealed class Renderer
         {
             Pitch = 0.0f,
             Yaw = -0.0f,
-            PosX = -12
+            PosX = 0,
+            PosZ = 0
         };
+        
+        /*_objects.Add(new Plane(new Vector3(0, 1.0f, 0))
+        {
+            Transform = new Matrix3
+            {
+                Tz = -8,
+                Ty = -10
+            }
+        });*/
 
         _objects.Add(new SphereObject(emission: 200)
         {
             Transform = new Matrix3
             {
-                Tx = 16
+                Tx = 8,
+                Tz = 0
+            }
+        });
+        _objects.Add(new SphereObject(emission: 200)
+        {
+            Transform = new Matrix3
+            {
+                Tx = -8,
+                Tz = 0
+            }
+        });
+        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0,0, 0.7f))
+        {
+            Transform = new Matrix3
+            {
+                Tx = 0,
+                Tz = 8
+            }
+        });
+        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0,0, 0.7f))
+        {
+            Transform = new Matrix3
+            {
+                Tx = 0,
+                Tz = -8
+            }
+        });
+        _objects.Add(new SphereObject(color: new Vector3(0,0, 0.7f),  emission: 200)
+        {
+            Transform = new Matrix3
+            {
+                Ty = -8,
+                Tx = 0,
+                Tz = 0
+            }
+        });
+        _objects.Add(new SphereObject(color: new Vector3(0,0, 0.7f),  emission: 200)
+        {
+            Transform = new Matrix3
+            {
+                Ty = 8,
+                Tx = 0,
+                Tz = 0
             }
         });
 
-        _objects.Add(new SphereObject(radius: 2, emission: 400, color: new Vector3(0.2f, 0.8f, 0.2f))
+        /*_objects.Add(new SphereObject(radius: 2, emission: 400, color: new Vector3(0.2f, 0.8f, 0.2f))
         {
             Transform = new Matrix3
             {
@@ -58,7 +111,7 @@ public sealed class Renderer
                 Tz = -5.5f,
                 Ty = -7,
             }
-        });
+        });*/
 
 
         _objects.Add(new Skybox());
@@ -152,6 +205,18 @@ public sealed class Renderer
                 if (!_objects[objectIndex].TryBounceRay(ray, out var newRay))
                 {
                     continue;
+                }
+
+                if (_objects[objectIndex] is Plane)
+                {
+                    if (_objects[objectIndex + 1].TryBounceRay(newRay, out var newNewRay))
+                    {
+                        newRay = newNewRay;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
 
                 pixelRgb += newRay.Color;
