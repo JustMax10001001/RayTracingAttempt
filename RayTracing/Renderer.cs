@@ -148,15 +148,15 @@ public sealed class Renderer
         var screenToWorldTransform = CreateScreenToWorldTransform(_horizontalFovRad, width, height);
 
         var pixelWidthOnScreen = 1f / width;
-        var screenZ = 0f;
+        var screenY = 0f;
 
-        for (int pixelY = 0; pixelY < height; pixelY++, screenZ += pixelWidthOnScreen)
+        for (int pixelY = 0; pixelY < height; pixelY++, screenY += pixelWidthOnScreen)
         {
-            var screenY = 0f;
+            var screenX = 0f;
 
-            for (int pixelX = 0; pixelX < width; pixelX++, screenY += pixelWidthOnScreen)
+            for (int pixelX = 0; pixelX < width; pixelX++, screenX += pixelWidthOnScreen)
             {
-                var color = RenderPixel(new Vector3(0, screenY, screenZ), pixelWidthOnScreen, screenToWorldTransform,
+                var color = RenderPixel(new Vector3(screenX, screenY, 0), pixelWidthOnScreen, screenToWorldTransform,
                     cameraTransform);
 
                 if (hasPreviousFrame)
@@ -184,8 +184,8 @@ public sealed class Renderer
 
             var screenPosition = new Vector3
             {
-                Y = pixelTopLeftScreenPosition.Y + randomHorizontalDelta,
-                Z = pixelTopLeftScreenPosition.Z + randomVerticalDelta,
+                X = pixelTopLeftScreenPosition.X + randomHorizontalDelta,
+                Y = pixelTopLeftScreenPosition.Y + randomVerticalDelta
             };
 
             var worldRayEnd = screenPosition * screenToWorldTransform * cameraTransform;
@@ -232,15 +232,15 @@ public sealed class Renderer
     {
         var halfFov = horizontalFovRad / 2;
 
-        var screenX = 0.5f * MathF.Atan(halfFov);
+        var screenZ = 0.5f * MathF.Atan(halfFov);
         var screenHeightHalf = 0.5f * height / width;
 
         return new Matrix3
         {
-            M33 = -1,
-            Tx = screenX,
-            Ty = -0.5f,
-            Tz = screenHeightHalf
+            M22 = -1,
+            Tx = -0.5f,
+            Ty = screenHeightHalf,
+            Tz = screenZ
         };
     }
 }

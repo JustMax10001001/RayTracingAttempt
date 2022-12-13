@@ -37,7 +37,7 @@ public class Skybox : IMesh
         }
         else
         {
-            var sin = MathF.Sin((rayAngles.Z + MathF.PI / 2) / 2);
+            var sin = MathF.Sin((rayAngles.Y + MathF.PI / 2) / 2);
             pixelRgb = skyboxBottomColor + skyboxTopBottomDelta * MathF.Pow(sin, 0.7f);
         }
 
