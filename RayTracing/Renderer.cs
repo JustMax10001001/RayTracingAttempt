@@ -7,7 +7,7 @@ namespace RayTracing;
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
 public sealed class Renderer
 {
-    private const int RaysPerCast = 1;
+    private const int RaysPerCast = 4;
 
     private readonly Random _random = new();
     private readonly float _horizontalFovRad;
@@ -34,15 +34,7 @@ public sealed class Renderer
             PosX = 0,
             PosZ = 0
         };
-        
-        /*_objects.Add(new Plane(new Vector3(0, 1.0f, 0))
-        {
-            Transform = new Matrix3
-            {
-                Tz = -8,
-                Ty = -10
-            }
-        });*/
+
 
         _objects.Add(new SphereObject(emission: 200)
         {
@@ -60,7 +52,7 @@ public sealed class Renderer
                 Tz = 0
             }
         });
-        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0,0, 0.7f))
+        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0, 0.7f, 0.7f))
         {
             Transform = new Matrix3
             {
@@ -68,7 +60,7 @@ public sealed class Renderer
                 Tz = 8
             }
         });
-        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0,0, 0.7f))
+        _objects.Add(new SphereObject(emission: 200, color: new Vector3(0, 0.7f, 0.7f))
         {
             Transform = new Matrix3
             {
@@ -76,7 +68,7 @@ public sealed class Renderer
                 Tz = -8
             }
         });
-        _objects.Add(new SphereObject(color: new Vector3(0,0, 0.7f),  emission: 200)
+        _objects.Add(new SphereObject(color: new Vector3(0, 0.7f, 0.7f), emission: 200)
         {
             Transform = new Matrix3
             {
@@ -85,13 +77,22 @@ public sealed class Renderer
                 Tz = 0
             }
         });
-        _objects.Add(new SphereObject(color: new Vector3(0,0, 0.7f),  emission: 200)
+        _objects.Add(new SphereObject(color: new Vector3(0, 0.7f, 0.7f), emission: 200)
         {
             Transform = new Matrix3
             {
                 Ty = 8,
                 Tx = 0,
                 Tz = 0
+            }
+        });
+
+        _objects.Add(new Plane(new Vector3(0, 1.0f, 0.0f))
+        {
+            Transform = new Matrix3
+            {
+                Tz = 0,
+                Ty = -4
             }
         });
 
@@ -209,14 +210,23 @@ public sealed class Renderer
 
                 if (_objects[objectIndex] is Plane)
                 {
-                    if (_objects[objectIndex + 1].TryBounceRay(newRay, out var newNewRay))
+                    for (int reflectedObjectIndex = 0; reflectedObjectIndex < _objects.Count; reflectedObjectIndex++)
                     {
+                        if (reflectedObjectIndex == objectIndex)
+                        {
+                            continue;
+                        }
+
+                        if (!_objects[reflectedObjectIndex].TryBounceRay(newRay, out var newNewRay))
+                        {
+                            continue;
+                        }
+
                         newRay = newNewRay;
+                        break;
                     }
-                    else
-                    {
-                        continue;
-                    }
+                    
+                    newRay.Color = newRay.Color * 0.9f + new Vector3(1, 1, 1) * 0.1f;
                 }
 
                 pixelRgb += newRay.Color;

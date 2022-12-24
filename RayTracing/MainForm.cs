@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.VisualBasic.Devices;
+using RayTracing.Objects;
 using Timer = System.Threading.Timer;
 
 namespace RayTracing;
@@ -42,13 +43,37 @@ public sealed partial class MainForm : Form
         {
             _renderer.Camera.Yaw -= 0.025f;
         }
-        else if (GetKeyState(Keys.W) is KeyStates.Down)
+        else if (GetKeyState(Keys.T) is KeyStates.Down)
         {
             _renderer.Camera.Pitch += 0.01f;
         }
-        else if (GetKeyState(Keys.S) is KeyStates.Down)
+        else if (GetKeyState(Keys.G) is KeyStates.Down)
         {
             _renderer.Camera.Pitch -= 0.01f;
+        }
+
+        if (GetKeyState(Keys.W) is KeyStates.Down)
+        {
+            _renderer.Camera.PosZ += 0.25f * MathF.Cos(_renderer.Camera.Yaw);
+            _renderer.Camera.PosX -= 0.25f * MathF.Sin(_renderer.Camera.Yaw);
+        }
+
+        if (GetKeyState(Keys.S) is KeyStates.Down)
+        {
+            _renderer.Camera.PosZ -= 0.25f * MathF.Cos(_renderer.Camera.Yaw);
+            _renderer.Camera.PosX += 0.25f * MathF.Sin(_renderer.Camera.Yaw);
+        }
+
+        if (GetKeyState(Keys.D) is KeyStates.Down)
+        {
+            _renderer.Camera.PosZ += 0.25f * MathF.Sin(_renderer.Camera.Yaw);
+            _renderer.Camera.PosX += 0.25f  * MathF.Cos(_renderer.Camera.Yaw);
+        }
+
+        if (GetKeyState(Keys.A) is KeyStates.Down)
+        {
+            _renderer.Camera.PosZ -= 0.25f * MathF.Sin(_renderer.Camera.Yaw);
+            _renderer.Camera.PosX -= 0.25f  * MathF.Cos(_renderer.Camera.Yaw);
         }
     }
 
